@@ -1,0 +1,831 @@
+Analysing Android App Permissions and Mobile Traffic
+Procedure
+1. Create Android Virtual Device
+
+1.1 Install Android Studio
+1.2 Open AVD Manager
+1.3 Click “Create Virtual Device”
+1.4 Select device (Pixel 2 / Pixel 9)
+1.5 Complete setup
+
+2. Start Emulator with Proxy
+
+2.1 Open Command Prompt
+2.2 Navigate to emulator directory:
+
+cd C:\Users\Admin\AppData\Local\Android\Sdk\emulator
+
+2.3 List available AVDs:
+
+emulator -list-avds
+
+2.4 Start emulator with proxy:
+
+emulator -avd Pixel_9 -http-proxy http://10.0.2.2:8080
+3. Configure Proxy in Emulator
+
+3.1 Open Settings
+3.2 Go to Network & Internet → Internet
+3.3 Select connected network
+3.4 Click Edit → Advanced options
+3.5 Change Proxy to Manual
+3.6 Enter Hostname: 10.0.2.2
+3.7 Enter Port: 8080
+3.8 Click Save
+
+4. Configure Proxy using ADB (Alternative)
+
+4.1 Open Command Prompt
+4.2 Navigate to platform-tools:
+
+cd C:\Users\Admin\AppData\Local\Android\Sdk\platform-tools
+
+4.3 Check connected devices:
+
+adb devices
+
+4.4 Set proxy:
+
+adb shell settings put global http_proxy 10.0.2.2:8080
+
+4.5 Verify proxy:
+
+adb shell settings get global http_proxy
+5. Configure Burp Suite
+
+5.1 Open Burp Suite
+5.2 Go to Proxy → Options
+5.3 Under Proxy Listeners, click Edit
+5.4 Select “All interfaces”
+5.5 Click OK
+5.6 Turn Intercept ON
+
+6. Capture HTTP Traffic
+
+6.1 Open Chrome in emulator
+6.2 Visit:
+
+http://example.com
+
+6.3 Open Burp Suite → Proxy → HTTP History
+6.4 Observe HTTP requests and responses
+
+7. Export CA Certificate
+
+7.1 In Burp Suite, go to Proxy → Options
+7.2 Click Import/Export CA Certificate
+7.3 Select “Certificate in DER format”
+7.4 Save file as burpcer.der
+
+8. Transfer Certificate to Emulator
+
+8.1 Open Command Prompt
+8.2 Run command:
+
+adb push C:\Users\Admin\Downloads\burpcer.der /sdcard/Download/
+9. Install Certificate in Emulator
+
+9.1 Open Settings
+9.2 Go to Security & Privacy
+9.3 Click Encryption & Credentials
+9.4 Select Install Certificate → CA Certificate
+9.5 Choose burpcer.der
+
+10. Verify HTTPS Interception
+
+10.1 Open browser in emulator
+10.2 Visit:
+
+https://example.com
+
+10.3 Open Burp Suite → Proxy → HTTP History
+10.4 Verify HTTPS requests and responses
+
+------------------------------------------------------------------------
+
+Testing IoT Device Security (Default Passwords & Open Ports)
+Procedure
+1. Deploy Vulnerable IoT Simulation
+
+1.1 Open Command Prompt on Windows system
+1.2 Run the Docker container using:
+
+docker run -d -p 8090:3000 --name juiceshop bkimminich/juice-shop
+
+1.3 Open browser and access:
+
+http://localhost:8090
+2. Identify Host IP Address
+
+2.1 Open Command Prompt on Windows
+2.2 Run command:
+
+ipconfig
+
+2.3 Note the IPv4 address (e.g., 192.168.x.x)
+
+3. Perform Network Scan from Kali Linux
+
+3.1 Open terminal in Kali Linux
+3.2 Run Nmap scan:
+
+nmap -sV 192.168.x.x
+
+3.3 Observe:
+
+Open ports
+Running services
+Service versions
+Banner information
+4. Perform Service Version Detection
+
+4.1 Use the -sV flag in Nmap
+4.2 Identify service fingerprint and version details
+4.3 Analyze exposed services for vulnerabilities
+
+5. Access IoT Device Dashboard
+
+5.1 Open browser on Windows system
+5.2 Visit:
+
+http://localhost:8090
+
+5.3 Verify application is running
+
+6. Test Default / Weak Credentials
+
+6.1 Open login page of the application
+6.2 Enter default/admin credentials
+6.3 Check if login is successful
+6.4 Confirm weak authentication vulnerability
+
+7. Analyze Network Traffic (Browser Developer Tools)
+
+7.1 Open browser Developer Tools
+7.2 Go to Network tab
+7.3 Reload the application
+7.4 Observe HTTP requests and responses
+7.5 Check for plain text data transmission
+
+------------------------------------------------------------------------------------
+Creating and Analyzing Disk Images Using dc3dd and Autopsy
+Procedure
+1. Open Terminal in Kali Linux
+
+1.1 Press Ctrl + Alt + T
+1.2 Terminal will open
+
+2. Create Sample Evidence
+
+2.1 Create a file:
+
+echo "Cybersecurity Lab Evidence" > evidence.txt
+
+2.2 Verify file:
+
+ls
+3. Identify Disk Partition
+
+3.1 List storage devices:
+
+lsblk
+
+3.2 Note partition (e.g., /dev/sda1)
+
+4. Install dc3dd
+
+4.1 Install using apt:
+
+sudo apt update
+sudo apt install dc3dd -y
+5. Create Practice Disk File
+
+5.1 Create a 100MB disk:
+
+dd if=/dev/zero of=practice_disk.dd bs=1M count=100
+
+5.2 Format disk file:
+
+mkfs.ext4 practice_disk.dd
+6. Create Disk Image using dc3dd
+
+6.1 Run imaging command:
+
+sudo dc3dd if=/dev/sda1 of=/home/kali/disk_image.dd hash=md5 log=/home/kali/acquisition.log
+7. Verify Disk Image
+
+7.1 Check image file:
+
+ls -lh /home/kali/disk_image.dd
+
+7.2 View log file:
+
+cat /home/kali/acquisition.log
+8. Start Autopsy
+
+8.1 Launch Autopsy:
+
+autopsy
+
+8.2 Open browser and go to:
+
+http://localhost:9999/autopsy
+9. Create New Case
+
+9.1 Click Create New Case
+9.2 Enter case name and details
+9.3 Click Next
+
+10. Add Disk Image
+
+10.1 Click Add Host → Add Image
+10.2 Select image file:
+
+/home/kali/disk_image.dd
+
+10.3 Click Next
+10.4 Keep default settings and proceed
+
+11. Analyze Evidence
+
+11.1 Explore file system in Autopsy
+11.2 Locate file evidence.txt
+11.3 Check deleted files
+11.4 Analyze logs and artifacts
+------------------------------------------------------------------------------------------------
+Experiment – Log File Analysis for Incident Detection
+Procedure
+1. Navigate to Log Directory
+
+1.1 Open terminal in Kali Linux
+1.2 Move to log folder:
+
+cd /var/log
+
+1.3 List log files:
+
+ls
+
+👉 (Matches Page 1–2 screenshot showing /var/log structure )
+
+2. Check Successful Login History
+
+2.1 View login sessions:
+
+last
+3. View System Logs
+
+3.1 Open logs:
+
+journalctl | less
+
+👉 (Seen in Page 3 terminal screenshot )
+
+4. Detect Failed Login Attempts
+
+4.1 Search failed authentications:
+
+journalctl | grep "Failed"
+5. Analyze SSH Activity
+
+5.1 View SSH-related logs:
+
+journalctl | grep ssh
+6. Detect System Errors
+
+6.1 Search for errors:
+
+journalctl | grep -i error
+
+👉 (Confirmed from Page 4 image output )
+
+7. Analyze Apache Logs
+
+7.1 Navigate to Apache logs:
+
+cd /var/log/apache2
+
+7.2 List files:
+
+ls
+
+7.3 View access log:
+
+sudo less access.log
+8. Identify Suspicious Web Requests
+
+8.1 Search 404 errors:
+
+grep "404" /var/log/apache2/access.log
+
+👉 (Page 5 shows repeated 404 analysis for scanning detection )
+
+9. Check Package Activity
+
+9.1 View package logs:
+
+less /var/log/dpkg.log
+10. Monitor Logs in Real-Time
+
+10.1 Start live monitoring:
+
+sudo journalctl -f
+
+👉 (Shown in Page 6 live output screenshot )
+
+⚠️ METHOD 1: Simulate Failed SSH Login
+11. Install SSH Server
+
+11.1 Install OpenSSH:
+
+sudo apt update
+sudo apt install openssh-server -y
+12. Start SSH Service
+
+12.1 Start service:
+
+sudo service ssh start
+
+👉 (Page 8 screenshot confirms service start )
+
+13. Find IP Address
+
+13.1 Check IP:
+
+ip a
+
+👉 Look for:
+
+inet 192.168.x.x
+14. Generate Failed Login Attempts
+
+14.1 Attempt login:
+
+ssh fakeuser@localhost
+
+OR
+
+ssh kali@localhost
+
+14.2 Enter wrong password multiple times (5–10 times)
+
+👉 (Shown clearly in Page 9–10 screenshots )
+
+15. Check Failed Login Logs
+
+15.1 View failed attempts:
+
+journalctl | grep "Failed password"
+16. Extract Suspicious IP
+
+16.1 Extract IP address:
+
+journalctl | grep "Failed password" | awk '{print $11}'
+
+👉 Output example:
+
+127.0.0.1
+17. Count Attempts Per IP
+
+17.1 Count occurrences:
+
+journalctl | grep "Failed password" | awk '{print $11}' | sort | uniq -c | sort -nr
+
+👉 Example output:
+
+10 127.0.0.1
+
+👉 (Confirmed in Page 11–12 output )
+
+18. Alternative: Check Failed Logins
+
+18.1 Use lastb command:
+
+sudo lastb
+19. Check Recent Activity
+
+19.1 View recent logs:
+
+journalctl --since "10 minutes ago"
+
+👉 (Final command shown in last page screenshot )
+------------------------------------------------------------------------------------------------
+Network Forensics Using Wireshark
+Procedure
+1. Launch Wireshark
+
+1.1 Open terminal in Kali Linux
+1.2 Run command:
+
+wireshark &
+
+👉 (Seen in Page 1 terminal screenshot )
+
+2. Select Network Interface
+
+2.1 In Wireshark GUI, select:
+
+eth0 (or active interface)
+2.2 Click Start Capture
+
+👉 (Shown in Page 1 interface screenshot )
+
+3. Apply Protocol Filters
+
+3.1 Filter TCP packets:
+
+tcp
+
+3.2 Filter UDP packets:
+
+udp
+
+3.3 Filter HTTP traffic:
+
+http
+
+👉 (Page 2 shows TCP filtering output )
+
+4. Apply IP Address Filter
+
+4.1 Filter specific IP:
+
+ip.addr == 192.168.0.161
+
+👉 (Page 3 filter bar screenshot confirms this )
+
+5. Apply Source IP Filter
+
+5.1 Filter source address:
+
+ip.src == 192.168.0.161
+
+👉 (Shown in Page 3 Wireshark filter usage )
+
+6. Follow TCP Stream
+
+6.1 Right-click any TCP packet
+6.2 Select:
+Follow → TCP Stream
+
+👉 (Page 4 image clearly shows this option )
+
+7. Generate Suspicious Traffic (Port Scan)
+
+7.1 Open terminal
+7.2 Run Nmap scan:
+
+nmap -sS 192.168.x.x
+
+👉 (Command explicitly shown in Page 5 )
+
+8. Detect Port Scanning
+
+8.1 Apply filter:
+
+tcp.flags.syn == 1 && tcp.flags.ack == 0
+
+👉 Observe:
+
+Multiple SYN packets
+Different ports
+No ACK responses
+
+👉 (Explained + visible in packet list Page 5–6 )
+
+9. View Capture File Details
+
+9.1 Go to:
+Statistics → Capture File Properties
+
+👉 (Page 6 screenshot shows file details panel )
+
+10. View Resolved Addresses
+
+10.1 Go to:
+Statistics → Resolved Addresses
+
+👉 Converts IP → domain/device names
+👉 (Page 6–7 screenshot shows resolved entries )
+
+11. View Protocol Hierarchy
+
+11.1 Go to:
+Statistics → Protocol Hierarchy
+
+👉 Shows:
+
+Protocol distribution
+Packet percentages
+
+👉 (Page 7 chart confirms this )
+
+12. View Conversations
+
+12.1 Go to:
+Statistics → Conversations
+
+👉 Shows:
+
+Source & destination
+Packet counts
+Data transferred
+
+👉 (Page 8 screenshot confirms )
+
+13. Analyze Packet Length
+
+13.1 Go to:
+Statistics → Packet Length
+
+👉 Shows distribution of packet sizes
+
+👉 (Page 8 graph confirms )
+
+14. View Endpoints
+
+14.1 Go to:
+Statistics → Endpoints
+
+👉 Shows:
+
+Devices involved
+Packets sent/received
+
+👉 (Page 9 screenshot confirms )
+
+15. Analyze Traffic Graph
+
+15.1 Go to:
+Statistics → I/O Graphs
+
+👉 Shows:
+
+Traffic over time
+Packet trends
+
+👉 (Page 9 graph confirms )
+------------------------------------------------------------------------------------------------
+
+Privacy Audit of Desktop WhatsApp & Facebook with Data Breach Analysis
+Procedure
+1. Install Node.js and npm
+
+1.1 Open terminal in Kali Linux
+1.2 Update system:
+
+sudo apt update
+
+1.3 Install Node.js and npm:
+
+sudo apt install nodejs npm -y
+2. Install Nativefier
+
+2.1 Install globally:
+
+sudo npm install -g nativefier
+3. Create Desktop WhatsApp Web App
+
+3.1 Run command:
+
+nativefier https://web.whatsapp.com
+
+3.2 Note generated folder (e.g., WhatsAppWeb-linux-x64)
+
+4. Launch WhatsApp Desktop
+
+4.1 Navigate to folder:
+
+cd WhatsAppWeb-linux-x64
+
+4.2 Run application:
+
+./WhatsAppWeb
+
+4.3 Scan QR code using mobile and login
+
+📡 PART 1: Privacy Audit of WhatsApp
+5. Start WhatsApp for Traffic
+
+5.1 Launch app:
+
+cd WhatsAppWeb-linux-x64
+./WhatsAppWeb
+
+5.2 Login using QR code
+
+6. Analyze Trackers (Exodus Privacy)
+
+6.1 Open browser
+6.2 Visit:
+
+https://reports.exodus-privacy.eu.org
+
+6.3 Search for WhatsApp
+6.4 Record trackers and permissions
+
+7. Start Wireshark
+
+7.1 Launch Wireshark:
+
+wireshark
+
+7.2 Select interface (eth0 / wlan0)
+7.3 Click Start Capture
+
+8. Generate Network Traffic
+
+8.1 Send messages
+8.2 Send images
+8.3 Open chats
+
+9. Apply Filters
+
+9.1 Apply TLS filter:
+
+tls
+
+9.2 Apply DNS filter:
+
+dns
+10. Analyze Traffic
+
+10.1 Observe encrypted packets
+10.2 Identify domains (whatsapp.net, facebook.com)
+10.3 Verify message content not visible
+
+🌐 PART 2: Privacy Audit of Facebook
+11. Open Facebook
+
+11.1 Open browser
+11.2 Visit:
+
+https://www.facebook.com
+
+11.3 Login using test account
+
+12. Start Burp Suite
+
+12.1 Launch Burp Suite:
+
+burpsuite
+13. Configure Proxy
+
+13.1 Set proxy:
+
+IP: 127.0.0.1
+Port: 8080
+
+13.2 Configure browser:
+Settings → Network → Manual Proxy
+
+14. Intercept Traffic
+
+14.1 Turn Intercept ON
+14.2 Reload Facebook page
+14.3 Observe:
+
+Cookies (datr, fr)
+Session IDs
+Headers
+15. Analyze Tracking
+
+15.1 Open Developer Tools (F12)
+15.2 Go to Network tab
+15.3 Observe:
+
+Ads
+Analytics scripts
+Third-party requests
+📊 PART 3: Data Breach Case Study
+16. Study Facebook Data Breach
+
+16.1 Note details:
+
+533 million users affected
+Data leaked: phone numbers, emails
+16.2 Identify cause: API vulnerability
+17. Study WhatsApp Pegasus Attack
+
+17.1 Note attack:
+
+Spyware via missed call
+Remote access
+18. Check Email Breach Status
+
+18.1 Open browser
+18.2 Visit:
+
+https://haveibeenpwned.com
+
+18.3 Enter email
+18.4 Check breach status
+
+19. Analyze Results
+
+19.1 Identify type of attack
+19.2 Identify vulnerability
+19.3 Identify exposed data
+19.4 Suggest prevention methods
+------------------------------------------------------------------------------------------------
+Conducting a Security Audit and Risk Assessment
+Procedure
+1. Check System Information
+
+1.1 Press Windows + R
+1.2 Type command:
+
+msinfo32
+
+1.3 Note:
+
+OS Version
+System Type
+2. Check Windows Updates
+
+2.1 Open Settings
+2.2 Go to Windows Update
+2.3 Click Check for updates
+
+3. Check Firewall Status
+
+3.1 Search Windows Defender Firewall
+3.2 Click Turn Windows Defender Firewall on or off
+3.3 Verify firewall status
+
+4. Check Antivirus Status
+
+4.1 Open Windows Security
+4.2 Go to Virus & Threat Protection
+4.3 Check:
+
+Real-time protection → ON
+Last scan → Recent
+5. Check Account Security
+
+5.1 Open Settings
+5.2 Go to Accounts → Sign-in options
+5.3 Verify:
+
+Password enabled
+PIN / Windows Hello enabled
+6. Check Installed Applications
+
+6.1 Open Settings
+6.2 Go to Apps → Installed apps
+6.3 Check for:
+
+Unknown software
+Cracked tools
+7. Check Startup Programs
+
+7.1 Press Ctrl + Shift + Esc
+7.2 Open Task Manager
+7.3 Go to Startup tab
+7.4 Disable unnecessary applications
+
+8. Check Network Security
+
+8.1 Open Settings
+8.2 Go to Network & Internet
+8.3 Check:
+
+Wi-Fi connection status
+Network type (Public / Private)
+9. Check Browser Security
+
+9.1 Open browser (Chrome / Edge)
+9.2 Go to Settings → Privacy & Security
+9.3 Verify:
+
+Safe browsing enabled
+Remove unknown extensions
+10. Check Data Backup
+
+10.1 Search Backup settings
+10.2 Verify:
+
+OneDrive backup
+External backup configuration
+11. Perform Risk Assessment
+
+11.1 Identify assets (files, system, network, account)
+11.2 Identify threats (data loss, malware, hacking)
+11.3 Identify vulnerabilities (no backup, weak password)
+11.4 Assign risk level (High / Medium)
+11.5 Suggest solutions
+
+12. Apply Security Recommendations
+
+12.1 Enable firewall
+12.2 Enable antivirus
+12.3 Update system regularly
+12.4 Use strong passwords
+12.5 Avoid unknown downloads
+12.6 Practice safe browsing
+
+13. Record Results
+
+13.1 Note identified vulnerabilities
+13.2 Record mitigation strategies
+13.3 Summarize system security status
