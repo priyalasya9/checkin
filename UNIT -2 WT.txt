@@ -1,0 +1,785 @@
+UNIT -2 WT
+
+2.🔬 Experiment Steps (Short Version)
+
+📄
+
+1. Deploy IoT Simulation
+Open Command Prompt
+Run:
+docker run -d -p 8090:3000 --name juiceshop bkimminich/juice-shop
+Open browser → http://localhost:8090
+2. Find IP Address
+Run:
+ipconfig
+Note IPv4 (e.g., 192.168.0.148)
+3. Start Kali Linux
+Ensure same network as Windows
+4. Scan Using Nmap
+nmap -sV 192.168.x.x
+Finds:
+Open ports
+Services
+Versions
+5. Access Web Dashboard
+Open:
+http://localhost:8090
+6. Test Default Login
+Try admin credentials: admin@juice-sh.op admin123
+Login succeeds → weak password vulnerability
+7. Check Network Traffic
+Open Dev Tools (F12) → Network tab
+Observe:
+HTTP (no HTTPS)
+Plain text data
+📊 Key Observations
+Port 8090 open
+Services detected
+Default login works
+Data not encrypted (HTTP)
+
+3.🔬 DETAILED PROCEDURE (STEP-BY-STEP)
+🖥️ Step 1: Open Terminal in Kali Linux
+Press:
+Ctrl + Alt + T
+
+✔ Terminal opens (shown on page 3)
+
+📄 Step 2: Create Sample Evidence
+
+👉 Create a file so you can later detect it during analysis
+
+echo "Cybersecurity Lab Evidence" > evidence.txt
+✅ Verify:
+ls
+
+✔ You should see evidence.txt (page 3 screenshot)
+
+💽 Step 3: Identify Disk Partition
+
+👉 Find your storage device
+
+lsblk
+📌 Example output (page 3):
+sda
+ ├─ sda1
+ ├─ sda2
+
+✔ Use:
+
+/dev/sda1
+⚙️ Step 4: Install dc3dd (if not installed)
+sudo apt install dc3dd
+
+✔ Installation screen shown on page 4
+
+📀 Step 5: Create Disk Image
+🔹 (A) Create a Practice Disk
+dd if=/dev/zero of=practice_disk.dd bs=1M count=100
+🧠 Meaning:
+Creates 100MB disk file
+🔹 (B) Format the Disk
+mkfs.ext4 practice_disk.dd
+
+✔ Formats as Linux filesystem (page 5)
+
+🔹 (C) Create Forensic Image using dc3dd
+sudo dc3dd if=/dev/sda1 of=/home/kali/practice_disk.dd hash=md5 log=/home/kali/acquisition.log
+🧠 Explanation (page 5):
+if → input disk
+of → output file
+hash → integrity check
+log → stores details
+✅ Step 6: Verify Image Creation
+Check image:
+ls -lh /home/kali/practice_disk.dd
+Check log:
+cat /home/kali/acquisition.log
+
+✔ Log shows (page 6):
+
+Hash value
+Disk size
+Acquisition details
+🧪 Step 7: Start Autopsy Tool
+autopsy
+✅ Output:
+URL appears:
+http://localhost:9999/autopsy
+
+✔ Open it in browser (page 6–7)
+
+📁 Step 8: Create New Case
+
+In browser:
+
+Click Create New Case
+Enter:
+Case Name
+Description
+
+✔ Interface shown on page 7
+
+💾 Step 9: Add Disk Image
+
+Click:
+
+Add Host → Add Image
+Select:
+/home/kali/disk_image.dd
+
+✔ Autopsy starts analysis (page 8)
+
+📝 Recommended Values (page 9):
+Host Name: KaliLabMachine
+Description: forensic VM
+Leave others blank
+🔍 Step 10: Analyze Evidence
+
+👉 Now explore inside Autopsy:
+
+File system
+Deleted files
+Logs
+Search for:
+evidence.txt
+
+✔ Screens on pages 12–13 show:
+
+File browsing
+Keyword search
+File system details
+📊 WHAT YOU ACHIEVED
+
+✔ Created disk image
+✔ Verified integrity using hash
+✔ Loaded image into Autopsy
+✔ Found files (including created evidence)
+✔ Analyzed system artifacts
+
+4.🔬 DETAILED PROCEDURE (STEP-BY-STEP)
+🖥️ Step 1: Open Wireshark
+Open Kali terminal:
+wireshark &
+
+✔ Wireshark GUI opens (page 1 screenshot)
+
+🌐 Step 2: Select Network Interface
+Choose:
+eth0
+
+✔ This starts capturing packets from your network (page 1)
+
+📡 Step 3: Start Packet Capture
+Click Start (shark icon)
+You will see:
+Source IP
+Destination IP
+Protocol
+Length
+
+✔ Live packets appear (page 2 image)
+
+🔍 Step 4: Analyze Protocols (TCP/UDP/HTTP)
+
+👉 Use filter bar:
+
+TCP:
+tcp
+UDP:
+udp
+HTTP:
+http
+
+✔ Shows only selected protocol packets (page 2)
+
+🎯 Step 5: Apply IP Filters
+
+👉 Filter specific device traffic:
+
+ip.addr == 192.168.0.161
+
+✔ Shows packets related to that IP (page 3)
+
+🔹 Source-only filter:
+ip.src == 192.168.0.161
+
+✔ Shows packets only from that source (page 3)
+
+🔄 Step 6: Follow TCP Stream
+
+👉 Steps:
+
+Right-click any TCP packet
+Click:
+Follow → TCP Stream
+📊 What you see (page 4–5):
+Full communication between two devices
+Colors:
+🔴 Red → sender
+🔵 Blue → receiver
+🧠 Observations:
+Complete conversation reconstructed
+May include:
+Text data
+Binary data
+TCP flags visible:
+SYN → start
+ACK → acknowledge
+FIN → end
+🚨 Step 7: Detect Suspicious Traffic (Port Scan)
+
+👉 In Kali terminal:
+
+nmap -sS <target_IP>
+
+Example:
+
+nmap -sS 192.168.0.156
+
+👉 In Wireshark filter:
+
+tcp.flags.syn == 1 && tcp.flags.ack == 0
+🔍 You observe:
+Many SYN packets
+Different ports
+No completed connections
+
+✔ Indicates port scanning attack (page 5)
+
+📊 Step 8: Capture File Properties
+Go to:
+Statistics → Capture File Properties
+
+✔ Shows:
+
+File size
+Duration
+Packet count
+(page 6 screenshot)
+🌍 Step 9: Resolve Addresses
+Go to:
+Statistics → Resolved Addresses
+
+✔ Converts:
+
+IP → domain/device name
+(page 6)
+📈 Step 10: Protocol Hierarchy
+Go to:
+Statistics → Protocol Hierarchy
+
+✔ Shows:
+
+Protocol distribution
+% usage
+(page 7)
+🔗 Step 11: Conversations
+Go to:
+Statistics → Conversations
+
+✔ Shows:
+
+Communication between devices
+Data transferred
+(page 7–8)
+📦 Step 12: Packet Length Analysis
+Go to:
+Statistics → Packet Length
+
+✔ Shows:
+
+Packet size distribution
+(page 8)
+🖥️ Step 13: Endpoints
+Go to:
+Statistics → Endpoints
+
+✔ Shows:
+
+Devices involved
+Packets sent/received
+(page 8)
+📉 Step 14: I/O Graphs
+Go to:
+Statistics → I/O Graphs
+
+✔ Shows:
+
+Traffic over time
+(page 9)
+📊 FINAL RESULT
+
+✔ Packets captured successfully
+✔ Protocols analyzed
+✔ Filters applied
+✔ Suspicious activity detected
+
+✅ CONCLUSION (WRITE IN RECORD)
+
+Wireshark helps in:
+
+Capturing network traffic
+Analyzing protocols
+Detecting attacks (like port scanning)
+Understanding communication between systems
+
+5.🔬 DETAILED PROCEDURE (STEP-BY-STEP)
+🖥️ Step 1: Open Terminal
+Open Kali Linux terminal:
+Ctrl + Alt + T
+📁 Step 2: Go to Log Directory
+cd /var/log
+ls
+📊 What you see (page 1–2):
+dpkg.log → software activity
+apache2/ → web logs
+journal/ → system logs
+wtmp, btmp → login records
+
+✔ These logs are used for forensic analysis
+
+🔐 Step 3: Check Login History
+last
+
+✔ Shows:
+
+Successful logins
+User activity
+📜 Step 4: View System Logs
+journalctl | less
+
+✔ Scroll through logs (page 3)
+
+🚨 Step 5: Detect Failed Login Attempts
+journalctl | grep "Failed"
+
+✔ Shows:
+
+Failed authentication attempts
+Possible attack attempts
+🔑 Step 6: Check SSH Activity
+journalctl | grep ssh
+
+✔ Shows:
+
+Login attempts
+SSH connections
+❗ Step 7: Detect Errors
+journalctl | grep -i error
+
+✔ Shows:
+
+System errors
+Abnormal activity (page 4)
+🌐 Step 8: Analyze Web Logs (Apache)
+cd /var/log/apache2
+ls
+View logs:
+sudo less access.log
+
+✔ Shows:
+
+Website requests
+User access data
+🔍 Find suspicious requests:
+grep "404" /var/log/apache2/access.log
+
+✔ Many 404 errors → possible scanning attack
+
+📦 Step 9: Check Package Activity
+less /var/log/dpkg.log
+
+✔ Shows:
+
+Installed/updated software
+🔴 Step 10: Real-Time Monitoring
+sudo journalctl -f
+
+✔ Shows live logs (page 6)
+
+🚨 SIMULATE ATTACK (IMPORTANT PART)
+🔧 Step 11: Install SSH (if not installed)
+sudo apt install openssh-server -y
+▶️ Step 12: Start SSH Service
+sudo service ssh start
+🌐 Step 13: Find Your IP Address
+ip a
+
+✔ Look for:
+
+inet 192.168.x.x
+❌ Step 14: Generate Failed Login Attempts
+
+👉 Run:
+
+ssh fakeuser@localhost
+
+OR
+
+ssh kali@localhost
+
+👉 Enter wrong password 5–10 times
+
+✔ This creates attack logs (page 9)
+
+🔍 ANALYSIS PART
+🔎 Step 15: Check Failed Password Logs
+journalctl | grep "Failed password"
+
+✔ Example output:
+
+Failed password for kali from 127.0.0.1
+🌍 Step 16: Extract Suspicious IP
+journalctl | grep "Failed password" | awk '{print $11}'
+
+✔ Output:
+
+127.0.0.1
+📊 Step 17: Count Attempts per IP
+journalctl | grep "Failed password" | awk '{print $11}' | sort | uniq -c | sort -nr
+
+✔ Example:
+
+10 127.0.0.1
+
+👉 Means:
+
+10 failed attempts → suspicious (page 11)
+🧪 Step 18: Alternative Method
+sudo lastb
+
+✔ Shows failed login attempts
+
+⏱️ Step 19: Check Recent Activity
+journalctl --since "10 minutes ago"
+
+✔ Shows recent attacks (page 13)
+
+📊 FINAL INTERPRETATION (VERY IMPORTANT)
+
+✔ Multiple failed login attempts from same IP
+✔ Indicates brute force attack
+✔ Example:
+
+127.0.0.1 → suspicious IP
+🧠 HOW TO IDENTIFY SUSPICIOUS IP
+Condition	Meaning
+Same IP repeated	🚨 Suspicious
+Many attempts	🚨 Brute force
+Unknown IP	🚨 Attack
+✅ RESULT
+Logs analyzed successfully
+Failed logins detected
+Suspicious IP identified
+📝 CONCLUSION (WRITE IN RECORD)
+
+Log analysis helps in:
+
+Detecting attacks
+Identifying suspicious users
+Monitoring system security
+
+6.🔬 PART 1: Setup (VERY IMPORTANT)
+⚙️ Step 1: Install Node.js & npm
+
+Open Kali terminal:
+
+sudo apt update
+sudo apt install nodejs npm -y
+
+✔ Installs required tools (page 1)
+
+📦 Step 2: Install Nativefier
+sudo npm install -g nativefier
+
+✔ Used to create desktop apps (page 2)
+
+💬 Step 3: Create WhatsApp Desktop App
+nativefier https://web.whatsapp.com
+
+✔ Creates folder like:
+
+web-whatsapp-linux-x64
+▶️ Step 4: Run WhatsApp
+cd WhatsAppWeb-linux-x64 
+./WhatsAppWeb
+🔐 Step 5: Login
+Scan QR code using mobile
+WhatsApp opens
+
+✔ Shown on page 4
+
+🔍 PART 2: Privacy Audit of WhatsApp
+📊 Step 6: Analyze Trackers (Exodus Tool)
+Open browser
+Go to:
+https://reports.exodus-privacy.eu.org
+Search WhatsApp
+🔍 Observe (page 6):
+Trackers:
+Google Analytics
+Facebook Analytics
+Permissions
+
+✔ Record:
+
+Number of trackers
+Permissions used
+📡 Step 7: Start Wireshark
+wireshark
+Select interface:
+eth0 / wlan0
+Click Start Capture
+💬 Step 8: Generate Traffic
+
+In WhatsApp:
+
+Send messages
+Send images
+Open chats
+
+✔ This creates network packets (page 7)
+
+🔍 Step 9: Apply Filters
+
+Use filter bar:
+
+tls
+dns
+📊 Observations (page 8–9):
+Traffic is encrypted (TLS)
+Domains:
+whatsapp.net
+facebook.com
+Message content ❌ NOT visible
+🧠 Conclusion:
+
+✔ End-to-End Encryption works
+✔ Only metadata visible:
+
+IP
+Time
+Server
+🌐 PART 3: Privacy Audit of Facebook
+🌍 Step 10: Open Facebook
+Open browser:
+https://www.facebook.com
+Login using test account
+🛠️ Step 11: Start Burp Suite
+burpsuite
+
+✔ Opens interception tool (page 10)
+
+⚙️ Step 12: Configure Proxy
+
+Set:
+
+IP: 127.0.0.1
+Port: 8080
+In browser:
+Settings → Network → Manual Proxy
+Enter same IP & Port
+🔓 Step 13: Intercept Traffic
+In Burp → Turn Intercept ON
+Reload Facebook
+🔍 Observe (page 12):
+Cookies:
+datr
+fr
+Session IDs
+HTTP headers
+📊 Step 14: Analyze Tracking
+Press F12 in browser
+Go to Network tab
+🔍 Look for:
+Ads
+Analytics scripts
+Third-party requests
+🧠 Findings:
+
+✔ Heavy tracking
+✔ Uses cookies
+✔ Third-party integrations
+
+🧪 PART 4: Data Breach Case Study
+📌 Case 1: Facebook Breach
+533 million users affected
+Data leaked:
+Phone numbers
+Emails
+Cause: API vulnerability
+📌 Case 2: WhatsApp Pegasus Attack
+Spyware via missed call
+Remote access to device
+📧 Step 15: Check Email Breach
+
+Go to:
+
+https://haveibeenpwned.com
+Enter your email
+Check if leaked
+🔍 Analyze:
+Type of attack
+Data exposed
+Cause
+Prevention
+📊 FINAL OBSERVATIONS
+
+✔ WhatsApp → Secure (encrypted)
+✔ Facebook → Heavy tracking
+✔ Data breaches → due to vulnerabilities
+
+✅ RESULT (WRITE IN RECORD)
+
+Privacy audit successfully performed:
+
+WhatsApp → secure communication
+Facebook → tracking behavior observed
+Data breaches analyzed
+
+
+7.🔬 DETAILED PROCEDURE (STEP-BY-STEP)
+🖥️ Step 1: Check System Information
+✅ Steps:
+Press:
+Windows + R
+Type:
+msinfo32
+Press Enter
+🔍 Note down:
+OS Version
+System Type (32/64 bit)
+Processor
+
+✔ As shown on page 2, this gives full system details
+
+🔄 Step 2: Check Windows Updates
+✅ Steps:
+Open Settings
+Go to Windows Update
+Click Check for updates
+🔍 Observation:
+If updates pending → system is vulnerable
+✔ Page 3 shows pending updates case
+🔥 Step 3: Check Firewall Status
+✅ Steps:
+Search:
+Windows Defender Firewall
+Click:
+Turn Windows Defender Firewall on or off
+🔍 Check:
+Firewall should be ON
+Sometimes managed by antivirus (e.g., Kaspersky)
+
+✔ Page 4 shows firewall controlled by antivirus
+
+🛡️ Step 4: Check Antivirus Status
+✅ Steps:
+Open Windows Security
+Go to:
+Virus & Threat Protection
+🔍 Check:
+Real-time protection → ON
+Last scan → recent
+
+✔ Page 5 shows antivirus active and no threats
+
+🔐 Step 5: Check Account & Password Security
+✅ Steps:
+Go to:
+Settings → Accounts → Sign-in options
+🔍 Check:
+Password or PIN enabled
+Windows Hello (optional)
+
+✔ Page 6–7 shows PIN + password enabled
+
+📦 Step 6: Check Installed Applications
+✅ Steps:
+Go to:
+Settings → Apps → Installed apps
+🔍 Look for:
+Unknown apps
+Cracked software
+
+✔ Page 7–8 shows no suspicious apps
+
+🚀 Step 7: Check Startup Programs
+✅ Steps:
+Press:
+Ctrl + Shift + Esc
+Go to Startup tab
+🔍 Action:
+Disable unknown apps
+
+✔ Page 8–9 shows startup apps list
+
+🌐 Step 8: Check Network Security
+✅ Steps:
+Go to:
+Settings → Network & Internet
+🔍 Check:
+WiFi status → connected
+Network type:
+Public (safer in unknown networks)
+Private (home use)
+
+✔ Page 10–11 shows Public network selected
+
+🌍 Step 9: Check Browser Security
+✅ Steps (Chrome/Edge):
+Go to:
+Settings → Privacy & Security
+🔍 Check:
+Safe Browsing → ON
+Remove unknown extensions
+
+✔ Page 12–13 shows Safe Browsing enabled
+
+💾 Step 10: Check Backup Settings
+✅ Steps:
+Search:
+Backup settings
+🔍 Check:
+OneDrive / external backup enabled
+
+✔ Page 14 shows backup NOT configured (risk)
+
+⚠️ Step 11: Perform Risk Assessment
+
+👉 Create table like this:
+
+Asset	Threat	Vulnerability	Risk
+Files	Data loss	No backup	High
+System	Malware	Unknown apps	High
+Network	Hacking	Public network	Medium
+Account	Unauthorized access	Weak password	High
+
+✔ This table is shown on page 14
+
+🛠️ Step 12: Suggest Security Measures
+✅ Technical:
+Enable firewall
+Enable antivirus
+Update system
+✅ Administrative:
+Use strong passwords
+Avoid unknown software
+✅ User Awareness:
+Avoid phishing links
+Safe browsing
+
+✔ Page 15 lists these recommendations
+
+📊 FINAL RESULT
+System checked for vulnerabilities
+Risks identified
+Security improvements suggested
+✅ CONCLUSION (WRITE IN RECORD)
+
+This experiment helps in:
+
+Identifying system vulnerabilities
+Performing risk assessment
+Improving system security using proper controls
