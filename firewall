@@ -1,0 +1,10 @@
+import requests, subprocess
+data = requests.get("https://feodotracker.abuse.ch/downloads/ipblocklist.csv").text.splitlines()
+subprocess.run(["netsh","advfirewall","firewall","delete","rule","name=BadIP"])
+
+for line in data:
+    if line.startswith("#") or "dst_ip" in line: continue
+    ip = line.split(",")[1]
+    print("Block:", ip)
+    subprocess.run(["netsh","advfirewall","firewall","add","rule",
+                    "name=BadIP","dir=out","action=block","remoteip="+ip])
