@@ -1,0 +1,29 @@
+import subprocess
+
+# IP address to block
+ip_address = "1.2.3.4"
+
+# Firewall rule name
+rule_name = "BlockIP"
+
+# PowerShell command to add a firewall rule
+command = (
+    f"netsh advfirewall firewall add rule "
+    f"name='{rule_name}' "
+    f"dir=out "
+    f"action=block "
+    f"remoteip={ip_address}"
+)
+
+try:
+    # Execute the command using PowerShell
+    subprocess.run(
+        ["powershell", "-Command", command],
+        check=True
+    )
+
+    print(f"[SUCCESS] IP Address {ip_address} has been blocked successfully.")
+
+except subprocess.CalledProcessError as error:
+    print("[ERROR] Failed to block the IP address.")
+    print(error)
